@@ -1,0 +1,12 @@
+<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title>Pure Essence Apothecary</title>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="32" fill="url(#g)"/>
+  <circle cx="80" cy="80" r="58" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.25"/>
+  <path d="M60 98c16 0 26-10 26-26 0-16-10-26-26-26h-14v52h14zm0-40c8 0 14 6 14 14 0 8-6 14-14 14h-6v-28h6zM92 46h16c16 0 26 10 26 26 0 16-10 26-26 26H92V46zm14 12v28h2c8 0 14-6 14-14 0-8-6-14-14-14h-2z" fill="#f8fafc"/>
+</svg>
