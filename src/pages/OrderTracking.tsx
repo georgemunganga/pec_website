@@ -1,29 +1,149 @@
-import { useState } from 'react';
-import { Package, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Package, Phone, Search, Mail, MapPin, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
+import { ordersAPI, type TrackOrderParams } from '@/services/api';
+
+type ContactMethod = 'email' | 'phone';
+
+interface TrackingEvent {
+  status: string;
+  timestamp?: string;
+  location?: string;
+  message?: string;
+}
+
+interface TrackingInfo {
+  orderId: string;
+  trackingNumber?: string;
+  carrier?: string;
+  status: string;
+  estimatedDelivery?: string;
+  timeline: TrackingEvent[];
+}
+
+const normalizeTrackingInfo = (payload: any): TrackingInfo => {
+  const data = payload?.data || payload || {};
+  const timelineSource =
+    data.timeline ||
+    data.events ||
+    data.history ||
+    data.tracking?.timeline ||
+    data.tracking?.events ||
+    [];
+
+  return {
+    orderId: data.orderId || data.id || data.order || 'Unknown',
+    trackingNumber: data.trackingNumber || data.tracking?.number,
+    carrier: data.carrier || data.tracking?.carrier,
+    status: data.status || data.tracking?.status || 'pending',
+    estimatedDelivery: data.estimatedDelivery || data.tracking?.estimatedDelivery,
+    timeline: Array.isArray(timelineSource)
+      ? timelineSource.map((event: any) => ({
+          status: event.status || event.label || 'update',
+          timestamp: event.timestamp || event.time || event.date,
+          location: event.location || event.place,
+          message: event.message || event.description,
+        }))
+      : [],
+  };
+};
 
 export default function OrderTracking() {
   const [orderNumber, setOrderNumber] = useState('');
-  const [email, setEmail] = useState('');
+  const [contactMethod, setContactMethod] = useState<ContactMethod>('email');
+  const [contactValue, setContactValue] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const contactLabel = contactMethod === 'email' ? 'Email Address *' : 'Phone Number *';
+  const contactPlaceholder =
+    contactMethod === 'email' ? 'your.email@example.com' : '+260 97 123 4567';
+
+  const contactIcon = contactMethod === 'email' ? <Mail className="w-4 h-4" /> : <Phone className="w-4 h-4" />;
+
+  const timeline = useMemo(() => trackingInfo?.timeline || [], [trackingInfo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!orderNumber || !email) {
-      toast.error('Please fill in all fields');
+    if (!orderNumber.trim()) {
+      toast.error('Please enter your order number.');
+      return;
+    }
+
+    if (!contactValue.trim()) {
+      toast.error(`Please enter your ${contactMethod === 'email' ? 'email address' : 'phone number'}.`);
       return;
     }
 
     setIsSearching(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSearching(false);
+    setTrackingInfo(null);
+    setErrorMessage(null);
 
-    toast.info('Order tracking feature is coming soon. You will receive tracking updates via email.');
+    const payload: TrackOrderParams = {
+      orderNumber: orderNumber.trim(),
+      email: contactMethod === 'email' ? contactValue.trim() : undefined,
+      phone: contactMethod === 'phone' ? contactValue.trim() : undefined,
+    };
+
+    try {
+      const response = await ordersAPI.trackOrder(payload);
+      const normalized = normalizeTrackingInfo(response);
+      setTrackingInfo(normalized);
+      toast.success('Tracking details updated.');
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'We could not find tracking information for the provided details.';
+      setErrorMessage(message);
+      toast.error(message);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const renderTimeline = () => {
+    if (!timeline.length) {
+      return (
+        <p className="text-sm text-muted-foreground">
+          No tracking events yet. Please check back later or contact support if your package is delayed.
+        </p>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {timeline.map((event, index) => (
+          <div key={`${event.status}-${event.timestamp}-${index}`} className="flex gap-4">
+            <div className="flex flex-col items-center">
+              <div className="h-3 w-3 rounded-full bg-primary" />
+              {index < timeline.length - 1 && <div className="flex-1 w-px bg-border mt-1" />}
+            </div>
+            <div className="flex-1 pb-4 border-b border-border last:border-0 last:pb-0">
+              <p className="font-semibold text-foreground">{event.status}</p>
+              {(event.location || event.message) && (
+                <p className="text-sm text-muted-foreground">
+                  {event.location}
+                  {event.location && event.message ? ' • ' : ''}
+                  {event.message}
+                </p>
+              )}
+              {event.timestamp && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {new Date(event.timestamp).toLocaleString()}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -48,48 +168,133 @@ export default function OrderTracking() {
 
       <div className="container py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-card rounded-lg p-8 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <Package className="w-8 h-8 text-primary" />
-              <h2 className="text-2xl font-bold">Track Your Package</h2>
+          <div className="bg-card rounded-lg p-8 shadow-sm space-y-8">
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-3">
+                <Package className="w-8 h-8 text-primary" />
+                <div>
+                  <h2 className="text-2xl font-bold">Track Your Package</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Use your order number with either your email or phone number to find the latest status.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="orderNumber">Order Number *</Label>
+                  <Input
+                    id="orderNumber"
+                    type="text"
+                    placeholder="e.g., PE2LCHLRO"
+                    value={orderNumber}
+                    onChange={(e) => setOrderNumber(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    You can find your order number in the confirmation email or SMS receipt.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <Label>Contact Method</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={contactMethod === 'email' ? 'default' : 'outline'}
+                      className="w-full rounded-full"
+                      onClick={() => setContactMethod('email')}
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Email
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={contactMethod === 'phone' ? 'default' : 'outline'}
+                      className="w-full rounded-full"
+                      onClick={() => setContactMethod('phone')}
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      Phone
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="contact">{contactLabel}</Label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {contactIcon}
+                      </div>
+                      <Input
+                        id="contact"
+                        type={contactMethod === 'email' ? 'email' : 'tel'}
+                        className="pl-10"
+                        placeholder={contactPlaceholder}
+                        value={contactValue}
+                        onChange={(e) => setContactValue(e.target.value)}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {contactMethod === 'email'
+                        ? 'Use the same email address you used to place the order.'
+                        : 'Include your country code for faster lookup (e.g., +260...).'}
+                    </p>
+                  </div>
+                </div>
+
+                {errorMessage && (
+                  <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                    {errorMessage}
+                  </div>
+                )}
+
+                <Button type="submit" size="lg" className="w-full gap-2 rounded-full" disabled={isSearching}>
+                  <Search className="w-5 h-5" />
+                  {isSearching ? 'Searching...' : 'Track Order'}
+                </Button>
+              </form>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="orderNumber">Order Number *</Label>
-                <Input
-                  id="orderNumber"
-                  type="text"
-                  placeholder="e.g., ORD-12345-ABCD"
-                  value={orderNumber}
-                  onChange={(e) => setOrderNumber(e.target.value)}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  You can find your order number in the confirmation email
-                </p>
-              </div>
+            {trackingInfo && (
+              <div className="space-y-6">
+                <div className="bg-secondary/30 rounded-2xl p-6">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Order</p>
+                      <p className="text-2xl font-bold text-foreground">#{trackingInfo.orderId}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <p className="text-xl font-semibold capitalize">{trackingInfo.status}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Tracking Number</p>
+                      <p className="text-base font-medium font-mono">{trackingInfo.trackingNumber || 'Pending'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Carrier</p>
+                      <p className="text-base font-medium">{trackingInfo.carrier || 'TBD'}</p>
+                    </div>
+                  </div>
+                  {trackingInfo.estimatedDelivery && (
+                    <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                      <Truck className="w-4 h-4 text-primary" />
+                      Estimated delivery:{' '}
+                      <span className="font-medium text-foreground">
+                        {new Date(trackingInfo.estimatedDelivery).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your.email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  The email address used when placing the order
-                </p>
+                <div className="bg-card rounded-2xl border border-border p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <h3 className="text-lg font-semibold">Tracking Timeline</h3>
+                  </div>
+                  {renderTimeline()}
+                </div>
               </div>
-
-              <Button type="submit" size="lg" className="w-full gap-2" disabled={isSearching}>
-                <Search className="w-5 h-5" />
-                {isSearching ? 'Searching...' : 'Track Order'}
-              </Button>
-            </form>
+            )}
           </div>
 
           {/* Help Section */}

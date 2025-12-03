@@ -36,6 +36,7 @@ const Addresses = lazy(() => import("./pages/account/Addresses"));
 const WishlistPage = lazy(() => import("./pages/account/Wishlist"));
 const Returns = lazy(() => import("./pages/account/Returns"));
 const Support = lazy(() => import("./pages/account/Support"));
+const Notifications = lazy(() => import("./pages/account/Notifications"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Location = lazy(() => import("./pages/Location"));
@@ -56,6 +57,7 @@ const ProtectedAddresses = withProtectedRoute(Addresses);
 const ProtectedWishlist = withProtectedRoute(WishlistPage);
 const ProtectedReturns = withProtectedRoute(Returns);
 const ProtectedSupport = withProtectedRoute(Support);
+const ProtectedNotifications = withProtectedRoute(Notifications);
 
 function Router() {
   return (
@@ -85,6 +87,7 @@ function Router() {
               <Route path="/account/profile" component={ProtectedProfile} />
               <Route path="/account/addresses" component={ProtectedAddresses} />
               <Route path="/account/wishlist" component={ProtectedWishlist} />
+              <Route path="/account/notifications" component={ProtectedNotifications} />
               <Route path="/account/returns" component={ProtectedReturns} />
               <Route path="/account/support" component={ProtectedSupport} />
               <Route path="/about" component={About} />

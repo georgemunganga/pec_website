@@ -14,6 +14,7 @@ import { ImageZoom } from '@/components/ImageZoom';
 import { SEO } from '@/components/SEO';
 import { StructuredData, generateProductSchema } from '@/components/StructuredData';
 import { productsAPI } from '@/services/api';
+import { mapApiProduct } from '@/lib/products';
 import type { Product } from '@/types/product';
 
 export default function ProductDetail() {
@@ -53,14 +54,14 @@ export default function ProductDetail() {
           result = await fetchById();
         }
         if (isMounted) {
-          setProduct(result);
+          setProduct(mapApiProduct(result));
           setSelectedImage(0);
         }
       } catch (firstError) {
         try {
           const fallback = Number.isNaN(Number(productId)) ? await fetchById() : await fetchBySlug();
           if (isMounted) {
-            setProduct(fallback);
+            setProduct(mapApiProduct(fallback));
             setSelectedImage(0);
           }
         } catch (err) {

@@ -7,14 +7,8 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { announceToScreenReader, trapFocus } from '@/lib/accessibility';
 import { slugify } from '@/lib/format';
-
-interface SearchResult {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-}
+import { mapApiProduct } from '@/lib/products';
+import type { Product } from '@/types/product';
 
 interface MobileSearchProps {
   isOpen: boolean;
@@ -24,7 +18,7 @@ interface MobileSearchProps {
 export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
   const [, setLocation] = useLocation();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const { formatPrice } = useCurrency();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,9 +33,10 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
       setLoading(true);
       try {
         const data = await productsAPI.search(query, 10);
-        const payload = data.products || [];
-        setResults(payload);
-        announceToScreenReader(`${payload.length} results for ${query}`);
+        const payload = data.products || data.items || data.data || [];
+        const normalized = Array.isArray(payload) ? payload.map(mapApiProduct) : [];
+        setResults(normalized);
+        announceToScreenReader(`${normalized.length} results for ${query}`);
       } catch (error) {
         console.error('Search failed:', error);
         setResults([]);
@@ -55,7 +50,7 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
     return () => clearTimeout(debounce);
   }, [query]);
 
-  const handleProductClick = (id: number) => {
+  const handleProductClick = (id: string | number) => {
     setLocation(`/product/${id}`);
     setQuery('');
     setResults([]);

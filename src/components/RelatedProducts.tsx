@@ -3,6 +3,7 @@ import type { Product } from '@/types/product';
 import { ProductCard } from './ProductCard';
 import { ProductCardSkeleton } from './ProductCardSkeleton';
 import { productsAPI } from '@/services/api';
+import { mapApiProduct } from '@/lib/products';
 
 interface RelatedProductsProps {
   productId: string;
@@ -27,7 +28,7 @@ export function RelatedProducts({ productId, category }: RelatedProductsProps) {
         payload.items ||
         payload.data ||
         (Array.isArray(payload) ? payload : []);
-      setRelatedProducts(items);
+      setRelatedProducts(items.map(mapApiProduct));
     } catch (error) {
       console.error('Failed to load related products:', error);
       setRelatedProducts([]);

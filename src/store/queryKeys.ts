@@ -10,4 +10,5 @@ export const queryKeys = {
   order: (id: string | number) => ['order', id] as const,
   wishlist: () => ['wishlist'] as const,
   addresses: () => ['addresses'] as const,
+  notifications: (params?: KeyArg) => ['notifications', params] as const,
 };

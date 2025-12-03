@@ -7,12 +7,16 @@ import { useState } from 'react';
 import SearchBar from './SearchBar';
 import { MobileSearch } from './MobileSearch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from './ui/sheet';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Header() {
   const { getCartCount } = useCart();
   const cartCount = getCartCount();
+  const { isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const accountHref = isAuthenticated ? '/account' : '/login';
+  const accountLabel = isAuthenticated ? 'Account' : 'Login';
 
   return (
     <>
@@ -43,17 +47,16 @@ export function Header() {
                       { href: '/shop', label: 'Shop' },
                       { href: '/about', label: 'About' },
                       { href: '/contact', label: 'Contact' },
-                      { href: '/account', label: 'Account' },
+                      { href: accountHref, label: accountLabel },
                     ].map((item) => (
-                      <Link href={item.href} key={item.href}>
-                        <SheetClose asChild>
-                          <button
-                            className="w-full text-left px-4 py-3 rounded-2xl hover:bg-secondary/50 transition-colors font-medium"
-                          >
-                            {item.label}
-                          </button>
-                        </SheetClose>
-                      </Link>
+                      <SheetClose asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="block w-full text-left px-4 py-3 rounded-2xl hover:bg-secondary/50 transition-colors font-medium"
+                        >
+                          {item.label}
+                        </Link>
+                      </SheetClose>
                     ))}
                   </nav>
                 </SheetContent>
@@ -79,26 +82,30 @@ export function Header() {
             {/* Desktop Navigation & Search */}
             <div className="hidden md:flex items-center gap-6 flex-1 max-w-2xl mx-8">
               <nav className="flex items-center gap-6">
-                <Link href="/">
-                  <a className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap">
-                    Home
-                  </a>
+                <Link
+                  href="/"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Home
                 </Link>
-                <Link href="/shop">
-                  <a className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap">
-                    Shop
-                  </a>
+                <Link
+                  href="/shop"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Shop
                 </Link>
                 
-                <Link href="/contact">
-                  <a className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap">
-                    Contact
-                  </a>
+                <Link
+                  href="/contact"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Contact
                 </Link>
-                <Link href="/order-tracking">
-                  <a className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap">
-                    Track Order
-                  </a>
+                <Link
+                  href="/order-tracking"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  Track Order
                 </Link>
               </nav>
               <div className="flex-1">
@@ -109,30 +116,38 @@ export function Header() {
             {/* Actions */}
             <div className="flex items-center gap-3 md:gap-4">
               {/* Account Button - Mobile Icon */}
-              <Link href="/account">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="md:hidden rounded-full w-14 h-14 border-border hover:bg-secondary/50"
-                  aria-label="Account"
-                >
+              <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="md:hidden rounded-full w-14 h-14 border-border hover:bg-secondary/50"
+              >
+                <Link href={accountHref} aria-label={accountLabel}>
                   <User className="w-7 h-7" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
 
               {/* Account Button - Desktop */}
-              <Link href="/account">
-                <Button variant="outline" className="hidden md:flex h-14 rounded-full gap-3 pl-5 pr-2 border-border hover:bg-secondary/50 text-base">
-                  <span className="text-sm font-medium">Account</span>
+              <Button
+                asChild
+                variant="outline"
+                className="hidden md:flex h-14 rounded-full gap-3 pl-5 pr-2 border-border hover:bg-secondary/50 text-base"
+              >
+                <Link href={accountHref}>
+                  <span className="text-sm font-medium">{accountLabel}</span>
                   <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                     <User className="w-5 h-5 text-primary-foreground" />
                   </div>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               
               {/* Cart Button - Desktop: Pill Shape, Mobile: Icon Only */}
-              <Link href="/cart">
-                <Button variant="outline" className="h-14 rounded-full gap-3 p-1  border-border hover:bg-secondary/50 text-base" aria-label="Cart">
+              <Button
+                asChild
+                variant="outline"
+                className="h-14 rounded-full gap-3 p-1  border-border hover:bg-secondary/50 text-base"
+              >
+                <Link href="/cart" aria-label="Cart">
                   <span className="text-sm font-medium hidden md:inline">Cart</span>
                   <div className="relative w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                     <ShoppingCart className="w-8 h-8 text-primary-foreground" />
@@ -142,8 +157,8 @@ export function Header() {
                       </span>
                     )}
                   </div>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,15 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Product } from '@/types/product';
-import { productsAPI, ordersAPI, userAPI } from '@/services/api';
+import { productsAPI, ordersAPI, userAPI, notificationsAPI } from '@/services/api';
 import { queryKeys } from './queryKeys';
+import { mapApiProduct } from '@/lib/products';
 
 const extractProducts = (payload: any): Product[] => {
-  if (!payload) return [];
-  if (Array.isArray(payload.items)) return payload.items;
-  if (Array.isArray(payload.products)) return payload.products;
-  if (Array.isArray(payload.data)) return payload.data;
-  if (Array.isArray(payload)) return payload;
-  return [];
+  const source =
+    (payload?.data?.items && Array.isArray(payload.data.items) && payload.data.items) ||
+    (payload?.items && Array.isArray(payload.items) && payload.items) ||
+    (Array.isArray(payload?.products) && payload.products) ||
+    (Array.isArray(payload?.data) && payload.data) ||
+    (Array.isArray(payload) && payload) ||
+    [];
+
+  return source.map(mapApiProduct);
 };
 
 const normalizeOrders = (payload: any) => {
@@ -60,6 +64,23 @@ const normalizeOrderDetail = (payload: any) => {
   };
 };
 
+const normalizeNotifications = (payload: any) => {
+  const data = payload?.data || payload || {};
+  const source =
+    Array.isArray(data.notifications) ? data.notifications :
+    Array.isArray(data.items) ? data.items :
+    Array.isArray(data.data) ? data.data :
+    Array.isArray(payload) ? payload :
+    [];
+
+  return {
+    notifications: source,
+    unreadCount: typeof data.unreadCount === 'number'
+      ? data.unreadCount
+      : source.filter((notification: any) => !notification.read).length,
+  };
+};
+
 export const useFeaturedProductsQuery = () => {
   return useQuery({
     queryKey: queryKeys.products({ segment: 'featured', limit: 4, sort: 'popular' }),
@@ -94,5 +115,14 @@ export const useOrderDetailQuery = (orderId?: string) => {
     queryFn: () => ordersAPI.getOrderDetails(orderId as string),
     select: normalizeOrderDetail,
     enabled: !!orderId,
+  });
+};
+
+export const useNotificationsQuery = (params?: { unreadOnly?: boolean }) => {
+  const queryParams = { page: 1, unreadOnly: params?.unreadOnly ?? false };
+  return useQuery({
+    queryKey: queryKeys.notifications(queryParams),
+    queryFn: () => notificationsAPI.getNotifications(queryParams.page, queryParams.unreadOnly),
+    select: normalizeNotifications,
   });
 };

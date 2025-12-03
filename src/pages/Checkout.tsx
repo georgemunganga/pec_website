@@ -31,6 +31,11 @@ const paymentOptions = [
     title: "PayPal",
     description: "Sign in to PayPal for express checkout and buyer protection.",
   },
+  {
+    id: "cash_on_delivery" as const,
+    title: "Pay on Delivery",
+    description: "Settle your bill when the courier arrives (cash, card, or mobile money).",
+  },
 ];
 
 type PaymentMethod = (typeof paymentOptions)[number]["id"];
@@ -458,6 +463,28 @@ export default function Checkout() {
                     >
                       {paypalAuthorized ? "PayPal Authorized" : "Authorize PayPal"}
                     </Button>
+                  </div>
+                )}
+
+                {paymentMethod === "mobile_money" && (
+                  <div className="bg-secondary/40 rounded-xl p-4 space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      After placing your order we&apos;ll trigger a mobile money prompt to the number you provided. Follow the instructions on your phone to approve the payment.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Make sure your wallet has enough balance and is ready to approve MTN or Airtel push notifications.
+                    </p>
+                  </div>
+                )}
+
+                {paymentMethod === "cash_on_delivery" && (
+                  <div className="bg-secondary/40 rounded-xl p-4 space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Pay when your package arrives. Our courier can accept cash as well as facilitate a quick mobile money or card transaction at your door.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Please have the exact amount ready or ensure your preferred device is available at the time of delivery.
+                    </p>
                   </div>
                 )}
 

@@ -16,6 +16,7 @@ import { SEO } from '@/components/SEO';
 import { productsAPI, type ProductFilters as ApiProductFilters } from '@/services/api';
 import type { Product } from '@/types/product';
 import { buildPaginationMeta, getPaginationParams } from '@/lib/pagination';
+import { mapApiProduct } from '@/lib/products';
 
 type SortOption = 'featured' | 'price-low' | 'price-high' | 'newest' | 'popular';
 
@@ -158,13 +159,15 @@ export default function Shop() {
       try {
         const response = await productsAPI.getAll(apiFilters);
         const payload = (response as any) || [];
-        const items: Product[] =
+        const rawItems: Product[] =
           payload.items ||
           payload.products ||
           payload.data ||
           (Array.isArray(payload) ? payload : []);
 
-        setProductsData((prev) => (append ? [...prev, ...items] : items));
+        const normalizedItems = rawItems.map(mapApiProduct);
+
+        setProductsData((prev) => (append ? [...prev, ...normalizedItems] : normalizedItems));
 
         const metaSource = payload.meta?.pagination || payload.meta || undefined;
         const totalFromMeta =
@@ -202,14 +205,14 @@ export default function Shop() {
 
         if (!filtersHydrated) {
           const derivedCategories = Array.from(
-            new Set(items.map((p) => p.category).filter(Boolean))
+            new Set(normalizedItems.map((p) => p.category).filter(Boolean))
           );
           const derivedBrands = Array.from(
-            new Set(items.map((p) => p.brand).filter(Boolean))
+            new Set(normalizedItems.map((p) => p.brand).filter(Boolean))
           ) as string[];
           const derivedSkinTypes = Array.from(
             new Set(
-              items.flatMap((p) =>
+              normalizedItems.flatMap((p) =>
                 Array.isArray(p.skinType) ? p.skinType : p.skinType ? [p.skinType] : []
               )
             )

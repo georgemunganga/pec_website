@@ -11,7 +11,8 @@ import {
   Heart, 
   RotateCcw, 
   HelpCircle,
-  LogOut 
+  LogOut,
+  Bell
 } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Profile', href: '/account/profile', icon: User },
   { name: 'Addresses', href: '/account/addresses', icon: MapPin },
   { name: 'Wishlist', href: '/account/wishlist', icon: Heart },
+  { name: 'Notifications', href: '/account/notifications', icon: Bell },
   { name: 'Returns', href: '/account/returns', icon: RotateCcw },
   { name: 'Support', href: '/account/support', icon: HelpCircle },
 ];

@@ -672,6 +672,16 @@ Headers: Authorization: Bearer {token}
 GET /orders/{orderId}/tracking
 ```
 
+**Query Parameters (optional):**
+- `email` (string): Email address associated with the order — used for verification.
+- `phone` (string): Phone number associated with the order (include country code).
+
+**Example:**
+```
+GET /orders/PE2LCHLRO/tracking?email=john@example.com
+GET /orders/PE2LCHLRO/tracking?phone=%2B260977883578
+```
+
 **Response (200):**
 ```json
 {

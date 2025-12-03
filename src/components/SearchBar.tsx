@@ -7,19 +7,13 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { announceToScreenReader } from '@/lib/accessibility';
 import { slugify } from '@/lib/format';
-
-interface SearchResult {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-}
+import { mapApiProduct } from '@/lib/products';
+import type { Product } from '@/types/product';
 
 export default function SearchBar() {
   const [, setLocation] = useLocation();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<Product[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -51,8 +45,9 @@ export default function SearchBar() {
       setLoading(true);
       try {
         const data = await productsAPI.search(query, 5);
-        const payload = data.products || [];
-        setResults(payload);
+        const payload = data.products || data.items || data.data || [];
+        const normalized = Array.isArray(payload) ? payload.map(mapApiProduct) : [];
+        setResults(normalized);
         setIsOpen(true);
         setActiveIndex(payload.length ? 0 : -1);
         announceToScreenReader(`${payload.length} search result${payload.length === 1 ? "" : "s"} found`);
@@ -70,7 +65,7 @@ export default function SearchBar() {
     return () => clearTimeout(debounce);
   }, [query]);
 
-  const handleProductClick = (id: number) => {
+  const handleProductClick = (id: string | number) => {
     setLocation(`/product/${id}`);
     setQuery('');
     setIsOpen(false);

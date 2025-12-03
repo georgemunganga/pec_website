@@ -99,25 +99,46 @@ export const authAPI = {
     return apiCall('/auth/me');
   },
 
-  requestOTP: async (identifier: string, method: 'email' | 'phone') => {
+  requestOTP: async (identifier: string) => {
     return apiCall('/auth/request-otp', {
       method: 'POST',
-      body: json({ identifier, method }),
+      body: json({ identifier }),
     });
   },
 
-  verifyOTP: async (identifier: string, otp: string) => {
-    const data = await apiCall('/auth/verify-otp', {
+  verifyOTP: async (payload: {
+    identifier: string;
+    otp: string;
+    first_name?: string;
+    last_name?: string;
+    context?: 'login' | 'register';
+  }) => {
+    return apiCall('/auth/verify-otp', {
       method: 'POST',
-      body: json({ identifier, otp }),
+      body: json(payload),
     });
-    
+  },
+
+  loginWithOTP: async (identifier: string, options?: { storeToken?: boolean }) => {
+    const data = await apiCall('/auth/login-with-otp', {
+      method: 'POST',
+      body: json({ identifier }),
+    });
+
     // Store token
-    if (data.token) {
-      localStorage.setItem('auth_token', data.token);
+    const token = data.token || data.data?.token;
+    if (token && options?.storeToken !== false) {
+      localStorage.setItem('auth_token', token);
     }
-    
+
     return data;
+  },
+
+  registerInitiate: async (payload: { identifier: string; first_name: string; last_name: string }) => {
+    return apiCall('/auth/register-with-otp', {
+      method: 'POST',
+      body: json(payload),
+    });
   },
 
   forgotPassword: async (email: string) => {
@@ -356,6 +377,12 @@ export const cartAPI = {
 // ORDERS
 // ============================================================================
 
+export interface TrackOrderParams {
+  orderNumber?: string;
+  email?: string;
+  phone?: string;
+}
+
 export const ordersAPI = {
   createOrder: async (orderData: {
     paymentMethod: string;
@@ -390,8 +417,24 @@ export const ordersAPI = {
     return apiCall(`/orders/${orderId}`);
   },
 
-  trackOrder: async (orderId: string) => {
-    return apiCall(`/orders/${orderId}/tracking`);
+  trackOrder: async (params: TrackOrderParams) => {
+    const { orderNumber, email, phone } = params;
+    if (!orderNumber) {
+      throw new Error('Order number is required to track an order.');
+    }
+
+    const query: Record<string, string> = {};
+
+    if (email) {
+      query.email = email;
+    }
+
+    if (phone) {
+      query.phone = phone;
+    }
+
+    const endpoint = applyQueryParams(`/orders/${orderNumber}/tracking`, query);
+    return apiCall(endpoint);
   },
 
   downloadInvoice: async (orderId: string) => {
