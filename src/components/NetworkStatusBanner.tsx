@@ -64,10 +64,8 @@ export function NetworkStatusBanner() {
       return (
         <>
           <GaugeCircle className="w-4 h-4 mr-2" />
-          <span className="font-medium">Network is slow</span>
-          <span className="ml-1 text-xs text-white/80">
-            {slowDetail.url} responded in {(slowDetail.duration / 1000).toFixed(1)}s
-          </span>
+          <span className="font-medium">Network is slow.</span>
+          <span className="ml-1 text-xs text-white/80">Orders are still processable.</span>
           <button
             type="button"
             onClick={() => setSlowDetail(null)}
@@ -93,4 +91,3 @@ export function NetworkStatusBanner() {
     </div>
   );
 }
-

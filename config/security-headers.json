@@ -3,7 +3,7 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' data: https://images.unsplash.com https://*.unsplash.com; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.pureessenceapothecary.com https://admin.pureessenceapothecary.com https://pureessenceapothecary.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' data: https://images.unsplash.com https://*.unsplash.com https://api.pureessenceapothecary.com https://admin.pureessenceapothecary.com; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.pureessenceapothecary.com https://admin.pureessenceapothecary.com https://pureessenceapothecary.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" },
         { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), geolocation=(), microphone=()" },

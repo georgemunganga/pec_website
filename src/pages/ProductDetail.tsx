@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRoute, Link, useLocation } from 'wouter';
-import { ArrowLeft, ShoppingCart, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Minus, Plus, Image as ImageIcon } from 'lucide-react';
 import { Rating } from '@/components/Rating';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
@@ -16,6 +16,7 @@ import { StructuredData, generateProductSchema } from '@/components/StructuredDa
 import { productsAPI } from '@/services/api';
 import { mapApiProduct } from '@/lib/products';
 import type { Product } from '@/types/product';
+import { AddToCartDialog } from '@/components/AddToCartDialog';
 
 export default function ProductDetail() {
   const [, params] = useRoute('/product/:id');
@@ -30,6 +31,7 @@ export default function ProductDetail() {
   const [, setLocation] = useLocation();
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { addToComparison, isInComparison } = useComparison();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -113,7 +115,9 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.images && product.images.length > 0 ? product.images : [product.image];
+  const galleryImages = (product.images && product.images.length > 0 ? product.images : [product.image])
+    .filter((img): img is string => Boolean(img));
+  const hasGalleryImages = galleryImages.length > 0;
 
   const handleAddToCart = () => {
     if (!product.inStock) {
@@ -122,6 +126,7 @@ export default function ProductDetail() {
     }
     addToCart(product, quantity);
     toast.success(`${quantity} ${product.name} added to cart`);
+    setDialogOpen(true);
   };
 
   const handleBuyNow = () => {
@@ -162,34 +167,49 @@ export default function ProductDetail() {
             {/* Images */}
             <div>
               <div className="aspect-square bg-secondary rounded-lg overflow-hidden mb-4">
-                <ImageZoom
-                  src={images[selectedImage]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                {hasGalleryImages ? (
+                  <ImageZoom
+                    src={galleryImages[selectedImage] ?? ''}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-muted/30 text-muted-foreground">
+                    <ImageIcon className="w-16 h-16" aria-hidden="true" />
+                    <p className="text-sm font-medium uppercase tracking-wide">
+                      Product image unavailable
+                    </p>
+                  </div>
+                )}
               </div>
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(idx)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedImage === idx
-                        ? 'border-primary'
-                        : 'border-transparent hover:border-border'
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`${product.name} ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+              {hasGalleryImages && galleryImages.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {galleryImages.map((img, idx) => (
+                    <button
+                      key={`${img}-${idx}`}
+                      onClick={() => setSelectedImage(idx)}
+                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                        selectedImage === idx
+                          ? 'border-primary'
+                          : 'border-transparent hover:border-border'
+                      }`}
+                    >
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={`${product.name} ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                          <ImageIcon className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
           {/* Product Info */}
           <div>
@@ -337,6 +357,16 @@ export default function ProductDetail() {
         </div>
       </div>
     </div>
+    <AddToCartDialog
+      open={dialogOpen}
+      productName={product.name}
+      quantity={quantity}
+      onContinue={() => setDialogOpen(false)}
+      onCheckout={() => {
+        setDialogOpen(false);
+        setLocation('/checkout');
+      }}
+    />
     </>
   );
 }

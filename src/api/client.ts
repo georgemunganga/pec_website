@@ -37,7 +37,23 @@ export class ApiError extends Error {
 const getAuthToken = () => localStorage.getItem("auth_token");
 
 const buildUrl = (endpoint: string, query?: QueryParams) => {
-  const url = new URL(`${API_CONFIG.baseUrl}${endpoint}`);
+  let target = endpoint;
+
+  const isAbsolute = /^https?:\/\//i.test(endpoint);
+  if (!isAbsolute) {
+    const base = API_CONFIG.baseUrl;
+    if (base) {
+      const needsSlash = !endpoint.startsWith("/") && !base.endsWith("/");
+      target = `${base}${needsSlash ? "/" : ""}${endpoint}`;
+    } else if (typeof window !== "undefined") {
+      const prefix = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+      target = `${window.location.origin}${prefix}`;
+    } else {
+      throw new Error(`Cannot construct request URL for endpoint "${endpoint}"`);
+    }
+  }
+
+  const url = new URL(target);
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       if (value === undefined || value === null) return;

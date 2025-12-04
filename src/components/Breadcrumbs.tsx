@@ -55,11 +55,9 @@ export function Breadcrumbs() {
                 {crumb.label}
               </span>
             ) : (
-              <Link href={crumb.href}>
-                <a className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                  {index === 0 && <Home className="w-4 h-4" aria-hidden="true" />}
-                  {crumb.label}
-                </a>
+              <Link href={crumb.href} className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                {index === 0 && <Home className="w-4 h-4" aria-hidden="true" />}
+                {crumb.label}
               </Link>
             )}
           </li>

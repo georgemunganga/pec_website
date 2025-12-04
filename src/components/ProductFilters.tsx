@@ -228,13 +228,11 @@ export function ProductFilters({
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] overflow-y-auto">
-            <SheetHeader>
+          <SheetContent side="left" className="w-[300px] overflow-y-auto p-6">
+            <SheetHeader className="mb-6">
               <SheetTitle>Filters</SheetTitle>
             </SheetHeader>
-            <div className="mt-6">
-              <FilterContent />
-            </div>
+            <FilterContent />
           </SheetContent>
         </Sheet>
       </div>

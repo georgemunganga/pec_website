@@ -129,11 +129,9 @@ export default function Notifications() {
                           </span>
                         </div>
                         {notification.data?.orderId && (
-                          <Link href={`/account/orders/${notification.data.orderId}`}>
-                            <a className="text-sm text-primary hover:underline mt-2 inline-flex items-center gap-1">
-                              View order updates
-                              <CheckCircle2 className="w-4 h-4" />
-                            </a>
+                          <Link href={`/account/orders/${notification.data.orderId}`} className="text-sm text-primary hover:underline mt-2 inline-flex items-center gap-1">
+                            View order updates
+                            <CheckCircle2 className="w-4 h-4" />
                           </Link>
                         )}
                       </div>

@@ -1,4 +1,68 @@
 import type { Product } from "@/types/product";
+import { API_CONFIG } from "@/api/config";
+
+const resolveApiOrigin = () => {
+  try {
+    const url = new URL(API_CONFIG.baseUrl);
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return "";
+  }
+};
+
+const API_ORIGIN = resolveApiOrigin();
+
+const normalizeImageUrl = (value?: string | null): string => {
+  if (!value || typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const isAbsolute = /^https?:\/\//i.test(trimmed);
+
+  if (isAbsolute) {
+    let parsed: URL | null = null;
+    try {
+      parsed = new URL(trimmed);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn("[normalizeImageUrl] Failed to parse image URL:", trimmed, error);
+      }
+      return trimmed;
+    }
+
+    if (
+      parsed &&
+      API_ORIGIN &&
+      (parsed.hostname === "127.0.0.1" ||
+        parsed.hostname === "localhost" ||
+        parsed.hostname === "::1")
+    ) {
+      if (import.meta.env.DEV) {
+        console.info("[normalizeImageUrl] Rewriting local image URL:", {
+          original: trimmed,
+          resolved: `${API_ORIGIN}${parsed.pathname}${parsed.search ?? ""}`,
+        });
+      }
+      return `${API_ORIGIN}${parsed.pathname}${parsed.search ?? ""}`;
+    }
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("//")) {
+    try {
+      const origin = new URL(API_ORIGIN || "http://localhost");
+      return `${origin.protocol}${trimmed}`;
+    } catch {
+      return `https:${trimmed}`;
+    }
+  }
+
+  if (API_ORIGIN) {
+    return `${API_ORIGIN}${trimmed.startsWith("/") ? trimmed : `/${trimmed}`}`;
+  }
+
+  return trimmed;
+};
 
 const toNumber = (value: unknown): number | undefined => {
   if (value === null || value === undefined) return undefined;
@@ -66,11 +130,11 @@ export const mapApiProduct = (payload: any): Product => {
     ? payload.gallery_images.map((img: any) => img?.url).filter(Boolean)
     : [];
 
-  const primaryImage =
-    payload.main_image ||
-    payload.image ||
-    imagesArray[0] ||
-    "";
+  const normalizedImages = imagesArray.map((img: string) => normalizeImageUrl(img));
+
+  const primaryImage = normalizeImageUrl(
+    payload.main_image || payload.image || normalizedImages[0] || ""
+  );
 
   const ratingAverage =
     toNumber(payload.rating?.average) ??
@@ -91,7 +155,7 @@ export const mapApiProduct = (payload: any): Product => {
     rating: ratingAverage || 0,
     reviewCount: ratingCount || 0,
     image: primaryImage,
-    images: imagesArray,
+    images: normalizedImages,
     description: payload.description ?? "",
     features: payload.features,
     inStock,

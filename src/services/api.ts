@@ -175,9 +175,23 @@ export interface ProductFilters {
   sort?: 'price_asc' | 'price_desc' | 'newest' | 'popular' | 'rating';
 }
 
+export interface FilterItem {
+  id: number;
+  name: string;
+  product_count: number;
+}
+
 export interface ProductFilterFacets {
-  categories?: string[];
-  brands?: string[];
+  categories?: FilterItem[];
+  brands?: FilterItem[];
+  price_range?: {
+    min: number;
+    max: number;
+  };
+  ratings?: Array<{
+    value: number;
+    label: string;
+  }>;
   skinTypes?: string[];
   tags?: string[];
 }

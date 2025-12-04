@@ -24,65 +24,49 @@ export default function Home() {
       <div className="min-h-screen pb-20 md:pb-8">
       {/* Hero Section */}
       <section className="relative bg-background overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] lg:min-h-[700px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[380px] md:min-h-[540px] lg:min-h-[340px]">
           {/* Left: Text Content */}
-          <div className="flex flex-col justify-center items-start text-left px-8 py-16 lg:py-20">
-            <div className="max-w-lg w-full">
-              <span className="text-sm text-muted-foreground uppercase tracking-wider mb-6 block">
-                Natural magic
-              </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-foreground mb-8 leading-tight">
-                Start your Glow Journey Today. 
+          <div className="flex flex-col h-full px-6 py-8 lg:px-12 lg:py-10">
+            <div className="flex-1 flex flex-col items-center justify-center text-center max-w-xl mx-auto">
+              <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.2em] mb-6">
+                Nature's Kiss
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-foreground leading-tight">
+                Start your Glow Journey Today.
               </h1>
-              
-              {/* Description with italic */}
-              <div className="mb-12">
-                <p className="text-sm text-muted-foreground italic leading-relaxed">
-                  Say goodbye to looking dull with a glow so soft and natural, people notice you, not your skin problems.
-                </p>
+            </div>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+              <div className="text-xs md:text-sm text-muted-foreground italic text-center sm:text-right order-1 sm:order-2 sm:max-w-md sm:flex-1 sm:pl-6">
+                Say goodbye to looking dull with a glow so soft and natural, people notice you, not your skin problems.
+              </div>
+              <div className="order-2 sm:order-1 flex justify-center sm:justify-start sm:flex-none">
+                <Link href="/shop">
+                  <Button
+                    size="lg"
+                    className="rounded-full gap-3 pl-6 pr-2 py-3 bg-[#662609] hover:bg-[#4f1d06] text-white shadow-md transition-all flex items-center"
+                  >
+                    <span className="text-base font-medium">Start shopping</span>
+                    <span className="w-9 h-9 rounded-full bg-white text-[#662609] flex items-center justify-center">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </span>
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
-          
+
           {/* Right: Product Visual */}
           <div className="relative bg-secondary/20 overflow-hidden">
-            <picture>
-              <source
-                srcSet="/assets/hero/hero-glow.avif"
-                type="image/avif"
-              />
-              <source
-                srcSet="/assets/hero/hero-glow-2400.webp 2400w, /assets/hero/hero-glow-1200.webp 1200w"
-                type="image/webp"
-              />
-              <img
-                src="/assets/hero/hero-glow-1200.webp"
-                srcSet="/assets/hero/hero-glow-2400.webp 2400w, /assets/hero/hero-glow-1200.webp 1200w"
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                alt="Featured Product"
-                className="w-full h-full object-cover"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-            </picture>
+            <img
+              src="/assets/hero/hero-glow.webp"
+              alt="Featured Product"
+              className="w-full h-full object-cover"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
         </div>
-        {/* CTA anchored bottom-left of hero */}
-        <Link
-          href="/shop"
-          className="absolute left-4 bottom-6 md:left-10 md:bottom-10"
-        >
-          <Button
-            size="lg"
-            className="rounded-full gap-3 pl-6 pr-2 py-3 bg-[#8b572a] hover:bg-[#774723] text-white shadow-md transition-all flex items-center"
-          >
-            <span className="text-base font-medium">Shop the Collection</span>
-            <span className="w-9 h-9 rounded-full bg-white text-[#8b572a] flex items-center justify-center shadow-sm">
-              <ArrowUpRight className="w-4 h-4" />
-            </span>
-          </Button>
-        </Link>
       </section>
 
       {/* Featured Products */}
@@ -106,13 +90,13 @@ export default function Home() {
             </p>
           )}
           {loadingFeatured ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {Array.from({ length: 4 }).map((_, idx) => (
                 <ProductCardSkeleton key={idx} />
               ))}
             </div>
           ) : featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -138,7 +122,7 @@ export default function Home() {
       <Newsletter />
 
       {/* Features Section */}
-      <section className="py-16 md:py-20 bg-secondary/30">
+      <section className="py-16 md:py-20 pb-0 bg-secondary/30">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">

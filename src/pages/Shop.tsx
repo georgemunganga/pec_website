@@ -21,7 +21,7 @@ import { mapApiProduct } from '@/lib/products';
 type SortOption = 'featured' | 'price-low' | 'price-high' | 'newest' | 'popular';
 
 const STORAGE_KEY = 'pec_shop_filters';
-const FILTER_CACHE_KEY = 'pec_product_filters_v1';
+const FILTER_CACHE_KEY = 'pec_product_filters_v2'; // v2: transformed to strings
 const PRODUCTS_PER_PAGE = 12;
 
 const sortMap: Record<SortOption, ApiProductFilters['sort']> = {
@@ -75,9 +75,24 @@ export default function Shop() {
       const cached = sessionStorage.getItem(FILTER_CACHE_KEY);
       if (!cached) return;
       const parsed = JSON.parse(cached);
-      if (parsed.categories?.length) setAvailableCategories(parsed.categories);
-      if (parsed.brands?.length) setAvailableBrands(parsed.brands);
+
+      // Transform cached data to ensure we only have strings
+      if (parsed.categories?.length) {
+        const categoryNames = parsed.categories.map((cat: any) =>
+          typeof cat === 'string' ? cat : cat.name
+        );
+        setAvailableCategories(categoryNames);
+      }
+
+      if (parsed.brands?.length) {
+        const brandNames = parsed.brands.map((brand: any) =>
+          typeof brand === 'string' ? brand : brand.name
+        );
+        setAvailableBrands(brandNames);
+      }
+
       if (parsed.skinTypes?.length) setAvailableSkinTypes(parsed.skinTypes);
+
       if (
         parsed.categories?.length ||
         parsed.brands?.length ||
@@ -96,11 +111,29 @@ export default function Shop() {
       setIsLoadingFilters(true);
       setFiltersError(null);
       try {
-        const filters = await productsAPI.getFilters();
+        const response = await productsAPI.getFilters();
         if (!mounted) return;
-        if (filters.categories?.length) setAvailableCategories(filters.categories);
-        if (filters.brands?.length) setAvailableBrands(filters.brands);
+
+        // Extract the data from the response envelope
+        const filters = response.data || response;
+
+        // Transform categories and brands from objects to string arrays
+        if (filters.categories?.length) {
+          const categoryNames = filters.categories.map((cat: any) =>
+            typeof cat === 'string' ? cat : cat.name
+          );
+          setAvailableCategories(categoryNames);
+        }
+
+        if (filters.brands?.length) {
+          const brandNames = filters.brands.map((brand: any) =>
+            typeof brand === 'string' ? brand : brand.name
+          );
+          setAvailableBrands(brandNames);
+        }
+
         if (filters.skinTypes?.length) setAvailableSkinTypes(filters.skinTypes);
+
         if (
           filters.categories?.length ||
           filters.brands?.length ||
@@ -108,7 +141,16 @@ export default function Shop() {
         ) {
           setFiltersHydrated(true);
           try {
-            sessionStorage.setItem(FILTER_CACHE_KEY, JSON.stringify(filters));
+            // Cache the transformed data
+            sessionStorage.setItem(FILTER_CACHE_KEY, JSON.stringify({
+              categories: filters.categories?.map((cat: any) =>
+                typeof cat === 'string' ? cat : cat.name
+              ),
+              brands: filters.brands?.map((brand: any) =>
+                typeof brand === 'string' ? brand : brand.name
+              ),
+              skinTypes: filters.skinTypes,
+            }));
           } catch (err) {
             console.warn('Failed to cache filters', err);
           }
@@ -338,13 +380,13 @@ export default function Shop() {
               )}
 
               {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {Array.from({ length: 6 }).map((_, idx) => (
                     <ProductCardSkeleton key={idx} />
                   ))}
                 </div>
               ) : productsData.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {productsData.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

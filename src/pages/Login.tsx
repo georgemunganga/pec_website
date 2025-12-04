@@ -392,10 +392,8 @@ export default function Login() {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <Link href="/register">
-                <a className="text-primary font-medium hover:underline">
-                  Create account
-                </a>
+              <Link href="/register" className="text-primary font-medium hover:underline">
+                Create account
               </Link>
             </p>
           </div>
@@ -403,10 +401,8 @@ export default function Login() {
 
         {/* Back to Shop */}
         <div className="mt-6 text-center">
-          <Link href="/shop">
-            <a className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              ← Continue shopping
-            </a>
+          <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            ← Continue shopping
           </Link>
         </div>
       </div>

@@ -72,5 +72,20 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
+    proxy: {
+      // Proxy API requests to the backend
+      '/api': {
+        target: process.env.VITE_API_BASE_URL_LOCAL || 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        ws: true, // Enable WebSocket proxying
+      },
+      // Proxy image uploads to the backend
+      '/uploads': {
+        target: process.env.VITE_API_BASE_URL_LOCAL?.replace('/api/v2', '') || 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });

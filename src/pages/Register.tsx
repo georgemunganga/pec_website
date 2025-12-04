@@ -437,10 +437,8 @@ export default function Register() {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link href="/login">
-                <a className="text-primary font-medium hover:underline">
-                  Sign in
-                </a>
+              <Link href="/login" className="text-primary font-medium hover:underline">
+                Sign in
               </Link>
             </p>
           </div>
@@ -448,10 +446,8 @@ export default function Register() {
 
         {/* Back to Shop */}
         <div className="mt-6 text-center">
-          <Link href="/shop">
-            <a className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              ← Continue shopping
-            </a>
+          <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            ← Continue shopping
           </Link>
         </div>
       </div>

@@ -67,11 +67,9 @@ export default function OrderDetails() {
     <AccountLayout>
       <div className="space-y-6">
         <div>
-          <Link href="/account/orders">
-            <a className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
-              <ArrowLeft className="h-4 w-4" />
-              Back to orders
-            </a>
+          <Link href="/account/orders" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
+            <ArrowLeft className="h-4 w-4" />
+            Back to orders
           </Link>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>

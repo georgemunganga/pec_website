@@ -6,10 +6,15 @@ const parseNumber = (value: string | undefined, fallback: number) => {
 };
 
 const resolveBaseUrl = () => {
-  const devUrl = import.meta.env.VITE_API_BASE_URL_LOCAL?.trim();
+  // In development, use relative URLs to leverage Vite's proxy
+  if (import.meta.env.DEV) {
+    return '/api/v2';
+  }
+
+  // In production, use the full URL
   const prodUrl = import.meta.env.VITE_API_BASE_URL_PROD?.trim();
   const legacyUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-  const selected = import.meta.env.DEV ? devUrl ?? legacyUrl : prodUrl ?? legacyUrl;
+  const selected = prodUrl ?? legacyUrl;
   return (selected || FALLBACK_BASE_URL).replace(/\/$/, '');
 };
 

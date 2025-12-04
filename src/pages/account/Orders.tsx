@@ -69,10 +69,8 @@ export default function Orders() {
               <p className="text-muted-foreground mb-6">
                 {searchTerm ? 'Try a different search term' : 'Start shopping to see your orders here'}
               </p>
-              <Link href="/shop">
-                <a className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors">
-                  Browse Products
-                </a>
+              <Link href="/shop" className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors">
+                Browse Products
               </Link>
             </div>
           ) : (
