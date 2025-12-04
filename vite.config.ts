@@ -67,7 +67,7 @@ export default defineConfig({
     port: 3000,
     strictPort: false, // Will find next available port if 3000 is busy
     host: true,
-    allowedHosts: ["localhost", "127.0.0.1"],
+    allowedHosts: ["https://admin.pureessenceapothecary.com", "127.0.0.1", ],
     fs: {
       strict: true,
       deny: ["**/.*"],
@@ -75,7 +75,7 @@ export default defineConfig({
     proxy: {
       // Proxy API requests to the backend
       '/api': {
-        target: process.env.VITE_API_BASE_URL_LOCAL || 'http://127.0.0.1:8000',
+        target: process.env.VITE_API_BASE_URL_LOCAL || 'https://admin.pureessenceapothecary.com/',
         changeOrigin: true,
         secure: false,
         ws: true, // Enable WebSocket proxying
