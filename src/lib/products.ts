@@ -34,7 +34,7 @@ const normalizeImageUrl = (value?: string | null): string => {
       parsed &&
       API_ORIGIN &&
       (parsed.hostname === "127.0.0.1" ||
-        parsed.hostname === "https://admin.pureessenceapothecary.com/" ||
+        parsed.hostname === "localhost" ||
         parsed.hostname === "::1")
     ) {
       if (import.meta.env.DEV) {
